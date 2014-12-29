@@ -1,8 +1,6 @@
 /*******************************************************************************
  *
- * Pentaho Data Integration
- *
- * Copyright (C) 2002-2012 by Pentaho : http://www.pentaho.com
+ * Copyright (C) 2014 by Matt Burgess
  *
  *******************************************************************************
  *
@@ -22,9 +20,8 @@
 
 package org.pentaho.di.trans.steps.scriptengines;
 
-
-import javax.script.Bindings;
 import javax.script.CompiledScript;
+import javax.script.ScriptContext;
 import javax.script.ScriptEngine;
 
 import org.pentaho.di.compatibility.Value;
@@ -32,36 +29,31 @@ import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.trans.step.BaseStepData;
 import org.pentaho.di.trans.step.StepDataInterface;
 
-
 /**
- * @author Matt
- * @since 24-jan-2005
- *
+ * @author Matt Burgess
  */
-public class RunScriptData extends BaseStepData implements StepDataInterface
-{
-	public ScriptEngine cx;
-	public Bindings scope;
-	public CompiledScript script;
-    public String rawScript;
-	
-	public int fields_used[];
-	public Value values_used[];
-    
-    public RowMetaInterface outputRowMeta;
-	public int[]	replaceIndex;
-	
-	/**
-	 * 
-	 */
-	public RunScriptData()
-	{
-		super();
-		cx=null;
-		fields_used=null;
-	}
-	
-	public void check(int i){
-		System.out.println(i);
-	}	
+public class RunScriptData extends BaseStepData implements StepDataInterface {
+  public ScriptEngine engine;
+  public ScriptContext context;
+  public CompiledScript compiledScript;
+  public String rawScript;
+
+  public int fields_used[];
+  public Value values_used[];
+
+  public RowMetaInterface outputRowMeta;
+  public int[] replaceIndex;
+
+  /**
+   *
+   */
+  public RunScriptData() {
+    super();
+    engine = null;
+    fields_used = null;
+  }
+
+  public void check( int i ) {
+    System.out.println( i );
+  }
 }
