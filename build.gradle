@@ -2,8 +2,10 @@ apply plugin: 'java'
 apply plugin: 'idea'
 
 sourceCompatibility = JavaVersion.VERSION_1_6
-project.ext.kettle_dependency_revision = 'TRUNK-SNAPSHOT'
-project.ext.metastore_dependency_revision = 'TRUNK-SNAPSHOT'
+project.ext.kettle_dependency_revision = '5.2.0.0-209'
+project.ext.metastore_dependency_revision = '5.2.0.0-209'
+
+version = '1.0'
 
 repositories {
   maven {
@@ -29,9 +31,6 @@ configurations {
   compile {
     extendsFrom provided
   }
-  runtimeWithoutCompile {
-    transitive = false
-  }
   zip
 }
 
@@ -46,13 +45,18 @@ dependencies {
 task plugin(dependsOn:jar, type: Zip) {
   into("${project.name}/") {
     from jar.outputs.files
+    from fileTree(dir: 'package-res')
   }
+
+  // The list of JARs in the lib/ folder is the complement of the intersection of the compile and runtime dependencies,
+  // plus the JARs in the runtimeWithoutCompile config
+  // The list of JARs in the lib/ folder is the complement of the intersection of the compile and runtime dependencies,
+  // plus the JARs in the runtimeWithoutCompile config
   def compileDeps = configurations.compile.resolve()
-  def runtimeDeps = configurations.runtime.resolve()
-  def leftovers = (compileDeps + runtimeDeps) - compileDeps.intersect(runtimeDeps)
+  def providedDeps = configurations.provided.resolve()
+  def leftovers = compileDeps - providedDeps
   into("${project.name}/lib") {
     from leftovers
-    from configurations.runtimeWithoutCompile
   }
 }
 
@@ -61,5 +65,5 @@ artifacts {
 }
 
 task createGradleWrapper(type: Wrapper) {
-  gradleVersion = '1.7'
+  gradleVersion = '2.2'
 }
