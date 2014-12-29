@@ -276,7 +276,7 @@ public class RunScript extends BaseStep implements StepInterface {
       }
     }
 
-    bindings.put( "rowNumber", rownr++ );
+    bindings.put( "rowNumber", ++rownr );
 
     // Filling the defined TranVars with the Values from the Row
     //
