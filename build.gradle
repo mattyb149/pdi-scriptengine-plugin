@@ -2,10 +2,11 @@ apply plugin: 'java'
 apply plugin: 'idea'
 
 sourceCompatibility = JavaVersion.VERSION_1_6
-project.ext.kettle_dependency_revision = '5.2.0.0-209'
-project.ext.metastore_dependency_revision = '5.2.0.0-209'
+targetCompatibility = JavaVersion.VERSION_1_6
+project.ext.kettle_dependency_revision = '4.4.0-GA'
+project.ext.metastore_dependency_revision = '4.4.0-GA'
 
-version = '1.0'
+version = '1.0.4.8'
 
 repositories {
   maven {
@@ -36,10 +37,12 @@ configurations {
 
 dependencies {
   provided("pentaho-kettle:kettle-core:${project.ext.kettle_dependency_revision}")
+  provided("pentaho-kettle:kettle-db:${project.ext.kettle_dependency_revision}")
   provided("pentaho-kettle:kettle-engine:${project.ext.kettle_dependency_revision}")
   provided("pentaho-kettle:kettle-ui-swt:${project.ext.kettle_dependency_revision}")
-  provided("pentaho:metastore:${project.ext.metastore_dependency_revision}")
-  
+  provided('org.eclipse.swt:swt-linux-x86_64:3.7')
+  provided('org.eclipse:jface:3.3.0-I20070606-0010')
+  provided('rhino:js:1.7R3')
 }
 
 task plugin(dependsOn:jar, type: Zip) {

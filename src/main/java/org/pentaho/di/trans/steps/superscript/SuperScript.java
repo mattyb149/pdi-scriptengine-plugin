@@ -140,7 +140,7 @@ public class SuperScript extends BaseStep implements StepInterface {
         rowMeta = new RowMeta();
       }
       data.outputRowMeta = rowMeta.clone();
-      meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
+      meta.getFields( data.outputRowMeta, getStepname(), null, null, this );
 
       // Determine the indexes of the fields used!
       //
@@ -721,4 +721,53 @@ public class SuperScript extends BaseStep implements StepInterface {
     super.dispose( smi, sdi );
   }
 
+  /**
+   * Gets the boolean value of whether or not this object is gathering kettle metrics during execution.
+   *
+   * @return true if this logging object is gathering kettle metrics during execution
+   */
+  public boolean isGatheringMetrics() {
+    return false;
+  }
+
+  /**
+   * Enable of disable kettle metrics gathering during execution
+   *
+   * @param gatheringMetrics set to true to enable metrics gathering during execution.
+   */
+  public void setGatheringMetrics( boolean gatheringMetrics ) {
+
+  }
+
+  /**
+   * This option will force the create of a separate logging channel even if the logging concerns identical objects with
+   * identical names.
+   *
+   * @param forcingSeparateLogging Set to true to force separate logging
+   */
+  public void setForcingSeparateLogging( boolean forcingSeparateLogging ) {
+
+  }
+
+  /**
+   * @return True if the logging is forcibly separated out from even identical objects.
+   */
+  public boolean isForcingSeparateLogging() {
+    return false;
+  }
+
+  /**
+   * Substitutes field values in <code>aString</code>. Field values are of the form "?{<field name>}". The values are
+   * retrieved from the specified row. Please note that the getString() method is used to convert to a String, for all
+   * values in the row.
+   *
+   * @param aString the string on which to apply the substitution.
+   * @param rowMeta The row metadata to use.
+   * @param rowData The row data to use
+   * @return the string with the substitution applied.
+   * @throws org.pentaho.di.core.exception.KettleValueException In case there is a String conversion error
+   */
+  public String fieldSubstitute( String aString, RowMetaInterface rowMeta, Object[] rowData ) throws KettleValueException {
+    return aString;
+  }
 }

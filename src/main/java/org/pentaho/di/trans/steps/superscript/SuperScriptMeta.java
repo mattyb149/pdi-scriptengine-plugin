@@ -26,6 +26,7 @@ import java.math.BigDecimal;
 import java.net.URL;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 
 import javax.script.Bindings;
@@ -39,17 +40,16 @@ import org.pentaho.di.compatibility.Value;
 import org.pentaho.di.core.CheckResult;
 import org.pentaho.di.core.CheckResultInterface;
 import org.pentaho.di.core.Const;
+import org.pentaho.di.core.Counter;
 import org.pentaho.di.core.annotations.Step;
 import org.pentaho.di.core.database.DatabaseMeta;
 import org.pentaho.di.core.exception.KettleException;
-import org.pentaho.di.core.exception.KettlePluginException;
 import org.pentaho.di.core.exception.KettleStepException;
 import org.pentaho.di.core.exception.KettleXMLException;
 import org.pentaho.di.core.plugins.KettleURLClassLoader;
 import org.pentaho.di.core.row.RowMetaInterface;
 import org.pentaho.di.core.row.ValueMeta;
 import org.pentaho.di.core.row.ValueMetaInterface;
-import org.pentaho.di.core.row.value.ValueMetaFactory;
 import org.pentaho.di.core.variables.VariableSpace;
 import org.pentaho.di.core.xml.XMLHandler;
 import org.pentaho.di.i18n.BaseMessages;
@@ -62,7 +62,6 @@ import org.pentaho.di.trans.step.StepDataInterface;
 import org.pentaho.di.trans.step.StepInterface;
 import org.pentaho.di.trans.step.StepMeta;
 import org.pentaho.di.trans.step.StepMetaInterface;
-import org.pentaho.metastore.api.IMetaStore;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
@@ -91,10 +90,7 @@ public class SuperScriptMeta extends BaseStepMeta implements StepMetaInterface {
 
   public SuperScriptMeta() {
     super(); // allocate BaseStepMeta
-    try {
-      parseXmlForAdditionalClasses();
-    } catch ( Exception e ) { /* Ignore */
-    }
+
   }
 
   /**
@@ -194,7 +190,7 @@ public class SuperScriptMeta extends BaseStepMeta implements StepMetaInterface {
     this.scripts = scripts;
   }
 
-  public void loadXML( Node stepnode, List<DatabaseMeta> databases, IMetaStore metaStore ) throws KettleXMLException {
+  public void loadXML( Node stepnode, List<DatabaseMeta> databases, Map<String, Counter> counters ) throws KettleXMLException {
     readData( stepnode );
   }
 
@@ -289,7 +285,7 @@ public class SuperScriptMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public void getFields( RowMetaInterface row, String originStepname, RowMetaInterface[] info, StepMeta nextStep,
-                         VariableSpace space, Repository repository, IMetaStore metaStore ) throws KettleStepException {
+                         VariableSpace space, Repository repository ) throws KettleStepException {
     for ( int i = 0; i < fieldname.length; i++ ) {
       if ( !Const.isEmpty( fieldname[i] ) ) {
         String fieldName;
@@ -318,19 +314,16 @@ public class SuperScriptMeta extends BaseStepMeta implements StepMetaInterface {
             fieldName = fieldname[i];
           }
         }
-        try {
-          ValueMetaInterface v = ValueMetaFactory.createValueMeta( fieldName, fieldType );
-          v.setLength( length[i] );
-          v.setPrecision( precision[i] );
-          v.setOrigin( originStepname );
-          if ( replace[i] && replaceIndex >= 0 ) {
-            row.setValueMeta( replaceIndex, v );
-          } else {
-            row.addValueMeta( v );
-          }
-        } catch ( KettlePluginException e ) {
-
+        ValueMetaInterface v = new ValueMeta( fieldName, fieldType );
+        v.setLength( length[i] );
+        v.setPrecision( precision[i] );
+        v.setOrigin( originStepname );
+        if ( replace[i] && replaceIndex >= 0 ) {
+          row.setValueMeta( replaceIndex, v );
+        } else {
+          row.addValueMeta( v );
         }
+
       }
     }
   }
@@ -367,7 +360,7 @@ public class SuperScriptMeta extends BaseStepMeta implements StepMetaInterface {
     return retval.toString();
   }
 
-  public void readRep( Repository rep, IMetaStore metaStore, ObjectId id_step, List<DatabaseMeta> databases )
+  public void readRep( Repository rep, ObjectId id_step, List<DatabaseMeta> databases, Map<String, Counter> counters )
     throws KettleException {
     try {
 
@@ -409,7 +402,7 @@ public class SuperScriptMeta extends BaseStepMeta implements StepMetaInterface {
     }
   }
 
-  public void saveRep( Repository rep, IMetaStore metaStore, ObjectId id_transformation, ObjectId id_step )
+  public void saveRep( Repository rep, ObjectId id_transformation, ObjectId id_step )
     throws KettleException {
     try {
 
@@ -436,9 +429,10 @@ public class SuperScriptMeta extends BaseStepMeta implements StepMetaInterface {
     }
   }
 
-  public void check( List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
-                     String input[], String output[], RowMetaInterface info, VariableSpace space, Repository repository,
-                     IMetaStore metaStore ) {
+  public void check(
+    List<CheckResultInterface> remarks, TransMeta transMeta, StepMeta stepMeta, RowMetaInterface prev,
+    String input[], String output[], RowMetaInterface info ) {
+
     boolean error_found = false;
     String error_message = "";
     CheckResult cr;
@@ -811,33 +805,6 @@ public class SuperScriptMeta extends BaseStepMeta implements StepMetaInterface {
 
   public StepDataInterface getStepData() {
     return new SuperScriptData();
-  }
-
-  // This is for Additional Classloading
-  public void parseXmlForAdditionalClasses() throws KettleException {
-    try {
-      Properties sysprops = System.getProperties();
-      String strActPath = sysprops.getProperty( "user.dir" );
-      Document dom = XMLHandler.loadXMLFile( strActPath + "/plugins/steps/ScriptValues_mod/plugin.xml" );
-      Node stepnode = dom.getDocumentElement();
-      Node libraries = XMLHandler.getSubNode( stepnode, "js_libraries" );
-      int nbOfLibs = XMLHandler.countNodes( libraries, "js_lib" );
-      additionalClasses = new ScriptAddClasses[nbOfLibs];
-      for ( int i = 0; i < nbOfLibs; i++ ) {
-        Node fnode = XMLHandler.getSubNodeByNr( libraries, "js_lib", i );
-        String strJarName = XMLHandler.getTagAttribute( fnode, "name" );
-        String strClassName = XMLHandler.getTagAttribute( fnode, "classname" );
-        String strJSName = XMLHandler.getTagAttribute( fnode, "js_name" );
-
-        Class<?> addClass =
-          LoadAdditionalClass( strActPath + "/plugins/steps/ScriptValues_mod/" + strJarName, strClassName );
-        Object addObject = addClass.newInstance();
-        additionalClasses[i] = new ScriptAddClasses( addClass, addObject, strJSName );
-      }
-    } catch ( Exception e ) {
-      throw new KettleException( BaseMessages.getString( PKG,
-        "SuperScriptMeta.Exception.UnableToParseXMLforAdditionalClasses" ), e );
-    }
   }
 
   private static Class<?> LoadAdditionalClass( String strJar, String strClassName ) throws KettleException {
