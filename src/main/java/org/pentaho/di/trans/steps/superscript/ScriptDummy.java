@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.scriptengines;
+package org.pentaho.di.trans.steps.superscript;
 
 import java.util.List;
 import java.util.Map;

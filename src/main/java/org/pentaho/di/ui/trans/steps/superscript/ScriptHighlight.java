@@ -30,7 +30,7 @@
  *     IBM Corporation - initial API and implementation
  *******************************************************************************/
 
-package org.pentaho.di.ui.trans.steps.scriptengines;
+package org.pentaho.di.ui.trans.steps.superscript;
 
 import java.io.IOException;
 import java.io.StringReader;

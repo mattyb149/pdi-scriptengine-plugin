@@ -18,7 +18,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.ui.trans.steps.scriptengines;
+package org.pentaho.di.ui.trans.steps.superscript;
 
 import java.lang.reflect.Method;
 import java.math.BigDecimal;
@@ -102,8 +102,8 @@ import org.pentaho.di.trans.TransMeta;
 import org.pentaho.di.trans.step.BaseStepMeta;
 import org.pentaho.di.trans.step.StepDialogInterface;
 import org.pentaho.di.trans.step.StepMeta;
-import org.pentaho.di.trans.steps.scriptengines.*;
-import org.pentaho.di.trans.steps.scriptengines.RunScriptMeta;
+import org.pentaho.di.trans.steps.superscript.*;
+import org.pentaho.di.trans.steps.superscript.SuperScriptMeta;
 import org.pentaho.di.trans.steps.rowgenerator.RowGeneratorMeta;
 import org.pentaho.di.ui.core.dialog.EnterTextDialog;
 import org.pentaho.di.ui.core.dialog.ErrorDialog;
@@ -117,8 +117,8 @@ import org.pentaho.di.ui.trans.dialog.TransPreviewProgressDialog;
 import org.pentaho.di.ui.trans.step.BaseStepDialog;
 
 
-public class RunScriptDialog extends BaseStepDialog implements StepDialogInterface {
-  private static Class<?> PKG = RunScriptMeta.class; // for i18n purposes, needed by Translator2!!   $NON-NLS-1$
+public class SuperScriptDialog extends BaseStepDialog implements StepDialogInterface {
+  private static Class<?> PKG = SuperScriptMeta.class; // for i18n purposes, needed by Translator2!!   $NON-NLS-1$
 
   private static final String[] YES_NO_COMBO = new String[]{ BaseMessages.getString( PKG, "System.Combo.No" ), BaseMessages.getString( PKG, "System.Combo.Yes" ) };
 
@@ -205,7 +205,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
   private final static int CONTINUE_TRANSFORMATION = 0;
 
 
-  private RunScriptMeta input;
+  private SuperScriptMeta input;
 
   private TreeItem iteminput;
 
@@ -219,10 +219,10 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
 
   private RowGeneratorMeta genMeta;
 
-  public RunScriptDialog( Shell parent, Object in, TransMeta transMeta, String sname ) {
+  public SuperScriptDialog( Shell parent, Object in, TransMeta transMeta, String sname ) {
 
     super( parent, (BaseStepMeta) in, transMeta, sname );
-    input = (RunScriptMeta) in;
+    input = (SuperScriptMeta) in;
     genMeta = null;
     try {
       //ImageLoader xl = new ImageLoader();
@@ -270,14 +270,14 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     formLayout.marginHeight = Const.FORM_MARGIN;
 
     shell.setLayout( formLayout );
-    shell.setText( BaseMessages.getString( PKG, "RunScriptDialog.Shell.Title" ) );
+    shell.setText( BaseMessages.getString( PKG, "SuperScriptDialog.Shell.Title" ) );
 
     int middle = props.getMiddlePct();
     int margin = Const.MARGIN;
 
     // Filename line
     wlStepname = new Label( shell, SWT.RIGHT );
-    wlStepname.setText( BaseMessages.getString( PKG, "RunScriptDialog.Stepname.Label" ) );
+    wlStepname.setText( BaseMessages.getString( PKG, "SuperScriptDialog.Stepname.Label" ) );
     props.setLook( wlStepname );
     fdlStepname = new FormData();
     fdlStepname.left = new FormAttachment( 0, 0 );
@@ -294,9 +294,9 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     fdStepname.right = new FormAttachment( 100, 0 );
     wStepname.setLayoutData( fdStepname );
 
-    // RunScript engines line
+    // SuperScript engines line
     wlEngines = new Label( shell, SWT.RIGHT );
-    wlEngines.setText( BaseMessages.getString( PKG, "RunScriptDialog.ScriptEngine.Label" ) );
+    wlEngines.setText( BaseMessages.getString( PKG, "SuperScriptDialog.ScriptEngine.Label" ) );
     props.setLook( wlEngines );
     fdlEngines = new FormData();
     fdlEngines.left = new FormAttachment( 0, 0 );
@@ -304,7 +304,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     fdlEngines.top = new FormAttachment( wStepname, margin );
     wlEngines.setLayoutData( fdlEngines );
     wEngines = new CCombo( shell, SWT.LEFT | SWT.READ_ONLY | SWT.BORDER );
-    List<String> scriptEngineNames = RunScriptUtils.getScriptLanguageNames();
+    List<String> scriptEngineNames = ScriptUtils.getScriptLanguageNames();
     if ( scriptEngineNames != null ) {
       Collections.sort( scriptEngineNames );
 
@@ -341,9 +341,9 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     topLayout.marginHeight = Const.FORM_MARGIN;
     wTop.setLayout( topLayout );
 
-    // RunScript line
+    // SuperScript line
     wlScriptFunctions = new Label( wTop, SWT.NONE );
-    wlScriptFunctions.setText( BaseMessages.getString( PKG, "RunScriptDialog.ScriptFunctions.Label" ) );
+    wlScriptFunctions.setText( BaseMessages.getString( PKG, "SuperScriptDialog.ScriptFunctions.Label" ) );
     props.setLook( wlScriptFunctions );
     fdlScriptFunctions = new FormData();
     fdlScriptFunctions.left = new FormAttachment( 0, 0 );
@@ -360,9 +360,9 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     fdlTree.bottom = new FormAttachment( 100, -margin );
     wTree.setLayoutData( fdlTree );
 
-    // RunScript line
+    // SuperScript line
     wlScript = new Label( wTop, SWT.NONE );
-    wlScript.setText( BaseMessages.getString( PKG, "RunScriptDialog.RunScript.Label" ) );
+    wlScript.setText( BaseMessages.getString( PKG, "SuperScriptDialog.SuperScript.Label" ) );
     props.setLook( wlScript );
     fdlScript = new FormData();
     fdlScript.left = new FormAttachment( wTree, margin );
@@ -381,7 +381,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     folder.setLayoutData( fdScript );
 
     wlPosition = new Label( wTop, SWT.NONE );
-    wlPosition.setText( BaseMessages.getString( PKG, "RunScriptDialog.Position.Label" ) );
+    wlPosition.setText( BaseMessages.getString( PKG, "SuperScriptDialog.Position.Label" ) );
     props.setLook( wlPosition );
     fdlPosition = new FormData();
     fdlPosition.left = new FormAttachment( wTree, margin );
@@ -424,7 +424,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     wSeparator.setLayoutData( fdSeparator );
 
     wlFields = new Label( wBottom, SWT.NONE );
-    wlFields.setText( BaseMessages.getString( PKG, "RunScriptDialog.Fields.Label" ) );
+    wlFields.setText( BaseMessages.getString( PKG, "SuperScriptDialog.Fields.Label" ) );
     props.setLook( wlFields );
     fdlFields = new FormData();
     fdlFields.left = new FormAttachment( 0, 0 );
@@ -434,16 +434,16 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     final int FieldsRows = input.getFieldname().length;
 
     ColumnInfo scriptResultColumn =
-      new ColumnInfo( BaseMessages.getString( PKG, "RunScriptDialog.ColumnInfo.ReturnValue" ), ColumnInfo.COLUMN_TYPE_CCOMBO, YES_NO_COMBO );
+      new ColumnInfo( BaseMessages.getString( PKG, "SuperScriptDialog.ColumnInfo.ReturnValue" ), ColumnInfo.COLUMN_TYPE_CCOMBO, YES_NO_COMBO );
 
     ColumnInfo[] colinf = new ColumnInfo[]
       {
-        new ColumnInfo( BaseMessages.getString( PKG, "RunScriptDialog.ColumnInfo.Filename" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
-        new ColumnInfo( BaseMessages.getString( PKG, "RunScriptDialog.ColumnInfo.RenameTo" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
-        new ColumnInfo( BaseMessages.getString( PKG, "RunScriptDialog.ColumnInfo.Type" ), ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMeta.getTypes() ),
-        new ColumnInfo( BaseMessages.getString( PKG, "RunScriptDialog.ColumnInfo.Length" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
-        new ColumnInfo( BaseMessages.getString( PKG, "RunScriptDialog.ColumnInfo.Precision" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
-        new ColumnInfo( BaseMessages.getString( PKG, "RunScriptDialog.ColumnInfo.Replace" ), ColumnInfo.COLUMN_TYPE_CCOMBO, YES_NO_COMBO ),
+        new ColumnInfo( BaseMessages.getString( PKG, "SuperScriptDialog.ColumnInfo.Filename" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
+        new ColumnInfo( BaseMessages.getString( PKG, "SuperScriptDialog.ColumnInfo.RenameTo" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
+        new ColumnInfo( BaseMessages.getString( PKG, "SuperScriptDialog.ColumnInfo.Type" ), ColumnInfo.COLUMN_TYPE_CCOMBO, ValueMeta.getTypes() ),
+        new ColumnInfo( BaseMessages.getString( PKG, "SuperScriptDialog.ColumnInfo.Length" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
+        new ColumnInfo( BaseMessages.getString( PKG, "SuperScriptDialog.ColumnInfo.Precision" ), ColumnInfo.COLUMN_TYPE_TEXT, false ),
+        new ColumnInfo( BaseMessages.getString( PKG, "SuperScriptDialog.ColumnInfo.Replace" ), ColumnInfo.COLUMN_TYPE_CCOMBO, YES_NO_COMBO ),
         scriptResultColumn,
       };
 
@@ -493,9 +493,9 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     wOK = new Button( shell, SWT.PUSH );
     wOK.setText( BaseMessages.getString( PKG, "System.Button.OK" ) );
     wVars = new Button( shell, SWT.PUSH );
-    wVars.setText( BaseMessages.getString( PKG, "RunScriptDialog.GetVariables.Button" ) );
+    wVars.setText( BaseMessages.getString( PKG, "SuperScriptDialog.GetVariables.Button" ) );
     wTest = new Button( shell, SWT.PUSH );
-    wTest.setText( BaseMessages.getString( PKG, "RunScriptDialog.TestScript.Button" ) );
+    wTest.setText( BaseMessages.getString( PKG, "SuperScriptDialog.TestScript.Button" ) );
     wCancel = new Button( shell, SWT.PUSH );
     wCancel.setText( BaseMessages.getString( PKG, "System.Button.Cancel" ) );
 
@@ -560,8 +560,8 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
         event.doit = false;
         if ( cItem != null && folder.getItemCount() > 1 ) {
           MessageBox messageBox = new MessageBox( shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES );
-          messageBox.setText( BaseMessages.getString( PKG, "RunScriptDialog.DeleteItem.Label" ) );
-          messageBox.setMessage( BaseMessages.getString( PKG, "RunScriptDialog.ConfirmDeleteItem.Label", cItem.getText() ) );
+          messageBox.setText( BaseMessages.getString( PKG, "SuperScriptDialog.DeleteItem.Label" ) );
+          messageBox.setMessage( BaseMessages.getString( PKG, "SuperScriptDialog.ConfirmDeleteItem.Label", cItem.getText() ) );
           switch ( messageBox.open() ) {
             case SWT.YES:
               modifyScriptTree( cItem, DELETE_ITEM );
@@ -582,7 +582,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     // Adding the Default Transform Scripts Item to the Tree
     wTreeScriptsItem = new TreeItem( wTree, SWT.NULL );
     wTreeScriptsItem.setImage( guiresource.getImageBol() );
-    wTreeScriptsItem.setText( BaseMessages.getString( PKG, "RunScriptDialog.TransformScript.Label" ) );
+    wTreeScriptsItem.setText( BaseMessages.getString( PKG, "SuperScriptDialog.TransformScript.Label" ) );
 
     // Set the shell size, based upon previous time...
     setSize();
@@ -594,21 +594,21 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     // Input Fields
     iteminput = new TreeItem( wTree, SWT.NULL );
     iteminput.setImage( imageInputFields );
-    iteminput.setText( BaseMessages.getString( PKG, "RunScriptDialog.InputFields.Label" ) );
+    iteminput.setText( BaseMessages.getString( PKG, "SuperScriptDialog.InputFields.Label" ) );
     // Output Fields
     itemoutput = new TreeItem( wTree, SWT.NULL );
     itemoutput.setImage( imageOutputFields );
-    itemoutput.setText( BaseMessages.getString( PKG, "RunScriptDialog.OutputFields.Label" ) );
+    itemoutput.setText( BaseMessages.getString( PKG, "SuperScriptDialog.OutputFields.Label" ) );
 
     // Display waiting message for input
     itemWaitFieldsIn = new TreeItem( iteminput, SWT.NULL );
-    itemWaitFieldsIn.setText( BaseMessages.getString( PKG, "RunScriptDialog.GettingFields.Label" ) );
+    itemWaitFieldsIn.setText( BaseMessages.getString( PKG, "SuperScriptDialog.GettingFields.Label" ) );
     itemWaitFieldsIn.setForeground( guiresource.getColorDirectory() );
     iteminput.setExpanded( true );
 
     // Display waiting message for output
     itemWaitFieldsOut = new TreeItem( itemoutput, SWT.NULL );
-    itemWaitFieldsOut.setText( BaseMessages.getString( PKG, "RunScriptDialog.GettingFields.Label" ) );
+    itemWaitFieldsOut.setText( BaseMessages.getString( PKG, "SuperScriptDialog.GettingFields.Label" ) );
     itemWaitFieldsOut.setForeground( guiresource.getColorDirectory() );
     itemoutput.setExpanded( true );
 
@@ -641,7 +641,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     //rebuildInputFieldsTree();
     //buildOutputFieldsTree();
     buildAddClassesListTree();
-    addRenameTowTreeScriptItems();
+    addRenameToTreeScriptItems();
     input.setChanged( changed );
 
     // Create the drag source on the tree
@@ -707,7 +707,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     if ( ( strScript != null ) && strScript.length() > 0 ) {
       wScript.setText( strScript );
     } else {
-      wScript.setText( BaseMessages.getString( PKG, "RunScriptDialog.ScriptHere.Label" ) + Const.CR + Const.CR );
+      wScript.setText( BaseMessages.getString( PKG, "SuperScriptDialog.ScriptHere.Label" ) + Const.CR + Const.CR );
     }
     item.setImage( imageInactiveScript );
     props.setLook( wScript, Props.WIDGET_STYLE_FIXED );
@@ -918,7 +918,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
       posnr--;
       colnr++;
     }
-    wlPosition.setText( BaseMessages.getString( PKG, "RunScriptDialog.Position.Label2" ) + linenr + ", " + colnr );
+    wlPosition.setText( BaseMessages.getString( PKG, "SuperScriptDialog.Position.Label2" ) + linenr + ", " + colnr );
   }
 
   /**
@@ -926,7 +926,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
    */
   public void getData() {
     String engineName = input.getLanguageName();
-    if ( Const.isEmpty( engineName ) || !RunScriptUtils.getScriptLanguageNames().contains( engineName ) ) {
+    if ( Const.isEmpty( engineName ) || !ScriptUtils.getScriptLanguageNames().contains( engineName ) ) {
       wEngines.select( 0 );
     } else {
       wEngines.setText( engineName );
@@ -976,7 +976,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     wStepname.setFocus();
   }
 
-  // Setting default active RunScript
+  // Setting default active SuperScript
   private void refresh() {
     //CTabItem item = getCTabItemByName(strActiveScript);
     for ( int i = 0; i < folder.getItemCount(); i++ ) {
@@ -1008,8 +1008,8 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
   private boolean cancel() {
     if ( input.hasChanged() ) {
       MessageBox box = new MessageBox( shell, SWT.YES | SWT.NO | SWT.APPLICATION_MODAL );
-      box.setText( BaseMessages.getString( PKG, "RunScriptDialog.WarningDialogChanged.Title" ) );
-      box.setMessage( BaseMessages.getString( PKG, "RunScriptDialog.WarningDialogChanged.Message", Const.CR ) );
+      box.setText( BaseMessages.getString( PKG, "SuperScriptDialog.WarningDialogChanged.Title" ) );
+      box.setMessage( BaseMessages.getString( PKG, "SuperScriptDialog.WarningDialogChanged.Message", Const.CR ) );
       int answer = box.open();
 
       if ( answer == SWT.NO ) {
@@ -1022,7 +1022,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     return true;
   }
 
-  private void getInfo( RunScriptMeta meta ) {
+  private void getInfo( SuperScriptMeta meta ) {
     meta.setLanguageName( wEngines.getText() );
     int nrfields = wFields.nrNonEmpty();
     meta.allocate( nrfields );
@@ -1077,11 +1077,11 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
 
     boolean bInputOK = false;
 
-    // Check if Active RunScript has set, otherwise Ask
+    // Check if Active SuperScript has set, otherwise Ask
     if ( getCTabItemByName( strActiveScript ) == null ) {
       MessageBox mb = new MessageBox( shell, SWT.OK | SWT.CANCEL | SWT.ICON_ERROR );
-      mb.setMessage( BaseMessages.getString( PKG, "RunScriptDialog.NoActiveScriptSet" ) );
-      mb.setText( BaseMessages.getString( PKG, "RunScriptDialog.ERROR.Label" ) );
+      mb.setMessage( BaseMessages.getString( PKG, "SuperScriptDialog.NoActiveScriptSet" ) );
+      mb.setText( BaseMessages.getString( PKG, "SuperScriptDialog.ERROR.Label" ) );
       switch ( mb.open() ) {
         case SWT.OK:
           strActiveScript = folder.getItem( 0 ).getText();
@@ -1180,11 +1180,11 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
         StepMeta genStep = new StepMeta( registry.getPluginId( StepPluginType.class, genMeta ), "## TEST DATA ##", genMeta );
         genStep.setLocation( 50, 50 );
 
-        // Now create a RunScript step with the information in this dialog
+        // Now create a SuperScript step with the information in this dialog
         //
-        RunScriptMeta RunScriptMeta = new RunScriptMeta();
-        getInfo( RunScriptMeta );
-        StepMeta scriptStep = new StepMeta( registry.getPluginId( StepPluginType.class, RunScriptMeta ), Const.NVL( scriptStepName, "## SCRIPT ##" ), RunScriptMeta );
+        SuperScriptMeta SuperScriptMeta = new SuperScriptMeta();
+        getInfo( SuperScriptMeta );
+        StepMeta scriptStep = new StepMeta( registry.getPluginId( StepPluginType.class, SuperScriptMeta ), Const.NVL( scriptStepName, "## SCRIPT ##" ), SuperScriptMeta );
         scriptStepName = scriptStep.getName();
         scriptStep.setLocation( 150, 50 );
 
@@ -1240,11 +1240,11 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
 
         return true;
       } else {
-        throw new KettleException( BaseMessages.getString( PKG, "RunScriptDialog.Exception.CouldNotGetFields" ) );
+        throw new KettleException( BaseMessages.getString( PKG, "SuperScriptDialog.Exception.CouldNotGetFields" ) );
       }
     } catch ( Exception e ) {
-      new ErrorDialog( shell, BaseMessages.getString( PKG, "RunScriptDialog.TestFailed.DialogTitle" ),
-        BaseMessages.getString( PKG, "RunScriptDialog.TestFailed.DialogMessage" ), e );
+      new ErrorDialog( shell, BaseMessages.getString( PKG, "SuperScriptDialog.TestFailed.DialogTitle" ),
+        BaseMessages.getString( PKG, "SuperScriptDialog.TestFailed.DialogMessage" ), e );
       return false;
     }
 
@@ -1258,9 +1258,9 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
 
     Context context;
     Scriptable jsscope;
-    // RunScript jsscript;
+    // SuperScript jsscript;
 
-    // Making Refresh to get Active RunScript State
+    // Making Refresh to get Active SuperScript State
     refreshScripts();
 
     context = ContextFactory.getGlobal().enterContext();
@@ -1286,16 +1286,16 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
         Scriptable jsvalue = Context.toObject( dummyStep, jsscope );
         jsscope.put( "_step_", jsscope, jsvalue );
 
-        // Modification for Additional RunScript parsing
+        // Modification for Additional SuperScript parsing
         try {
           if ( input.getAddClasses() != null ) {
             for ( int i = 0; i < input.getAddClasses().length; i++ ) {
               Object jsOut = Context.javaToJS( input.getAddClasses()[i].getAddObject(), jsscope );
-              ScriptableObject.putProperty( jsscope, input.getAddClasses()[i].getJSName(), jsOut );
+              ScriptableObject.putProperty( jsscope, input.getAddClasses()[i].getScriptName(), jsOut );
             }
           }
         } catch ( Exception e ) {
-          testException = new KettleException( BaseMessages.getString( PKG, "RunScriptDialog.CouldNotAddToContext", e.toString() ) );
+          testException = new KettleException( BaseMessages.getString( PKG, "SuperScriptDialog.CouldNotAddToContext", e.toString() ) );
           testValue = false;
         }
 
@@ -1304,7 +1304,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
           Context.javaToJS( ScriptAddedFunctions.class, jsscope );
           ( (ScriptableObject) jsscope ).defineFunctionProperties( jsFunctionList, ScriptAddedFunctions.class, ScriptableObject.DONTENUM );
         } catch ( Exception ex ) {
-          testException = new KettleException( BaseMessages.getString( PKG, "RunScriptDialog.CouldNotAddDefaultFunctions", ex.toString() ) );
+          testException = new KettleException( BaseMessages.getString( PKG, "SuperScriptDialog.CouldNotAddDefaultFunctions", ex.toString() ) );
           testValue = false;
         }
 
@@ -1315,7 +1315,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
           jsscope.put( "ERROR_TRANSFORMATION", jsscope, Integer.valueOf( ERROR_TRANSFORMATION ) );
           jsscope.put( "CONTINUE_TRANSFORMATION", jsscope, Integer.valueOf( CONTINUE_TRANSFORMATION ) );
         } catch ( Exception ex ) {
-          testException = new KettleException( BaseMessages.getString( PKG, "RunScriptDialog.CouldNotAddTransformationConstants", ex.toString() ) );
+          testException = new KettleException( BaseMessages.getString( PKG, "SuperScriptDialog.CouldNotAddTransformationConstants", ex.toString() ) );
           testValue = false;
         }
 
@@ -1376,7 +1376,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
           jsscope.put( "row", jsscope, jsRow );
 
         } catch ( Exception ev ) {
-          testException = new KettleException( BaseMessages.getString( PKG, "RunScriptDialog.CouldNotAddInputFields", ev.toString() ) );
+          testException = new KettleException( BaseMessages.getString( PKG, "SuperScriptDialog.CouldNotAddInputFields", ev.toString() ) );
           testValue = false;
         }
 
@@ -1388,7 +1388,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
             context.evaluateString( jsscope, strStartScript, "trans_Start", 1, null );
           }
         } catch ( Exception e ) {
-          testException = new KettleException( BaseMessages.getString( PKG, "RunScriptDialog.CouldProcessStartScript", e.toString() ) );
+          testException = new KettleException( BaseMessages.getString( PKG, "SuperScriptDialog.CouldProcessStartScript", e.toString() ) );
           testValue = false;
         }
 
@@ -1451,23 +1451,23 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
             wFields.optWidth( true );
           }
 
-          // End RunScript!
+          // End SuperScript!
         } catch ( EvaluatorException e ) {
           String position = "(" + e.lineNumber() + ":" + e.columnNumber() + ")"; // $NON-NLS-1$  $NON-NLS-3$
-          String message = BaseMessages.getString( PKG, "RunScriptDialog.Exception.CouldNotExecuteScript", position );
+          String message = BaseMessages.getString( PKG, "SuperScriptDialog.Exception.CouldNotExecuteScript", position );
           testException = new KettleException( message, e );
           testValue = false;
         } catch ( JavaScriptException e ) {
           String position = "(" + e.lineNumber() + ":" + e.columnNumber() + ")"; // $NON-NLS-1$  $NON-NLS-3$
-          String message = BaseMessages.getString( PKG, "RunScriptDialog.Exception.CouldNotExecuteScript", position );
+          String message = BaseMessages.getString( PKG, "SuperScriptDialog.Exception.CouldNotExecuteScript", position );
           testException = new KettleException( message, e );
           testValue = false;
         } catch ( Exception e ) {
-          testException = new KettleException( BaseMessages.getString( PKG, "RunScriptDialog.Exception.CouldNotExecuteScript2" ), e );
+          testException = new KettleException( BaseMessages.getString( PKG, "SuperScriptDialog.Exception.CouldNotExecuteScript2" ), e );
           testValue = false;
         }
       } else {
-        testException = new KettleException( BaseMessages.getString( PKG, "RunScriptDialog.Exception.CouldNotGetFields" ) );
+        testException = new KettleException( BaseMessages.getString( PKG, "SuperScriptDialog.Exception.CouldNotGetFields" ) );
         testValue = false;
       }
 
@@ -1475,17 +1475,17 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
         if ( testValue ) {
           if ( !getvars ) {
             MessageBox mb = new MessageBox( shell, SWT.OK | SWT.ICON_INFORMATION );
-            mb.setMessage( BaseMessages.getString( PKG, "RunScriptDialog.ScriptCompilationOK" ) + Const.CR );
+            mb.setMessage( BaseMessages.getString( PKG, "SuperScriptDialog.ScriptCompilationOK" ) + Const.CR );
             mb.setText( "OK" );
             mb.open();
           }
         } else {
-          new ErrorDialog( shell, BaseMessages.getString( PKG, "RunScriptDialog.TestFailed.DialogTitle" ), BaseMessages.getString( PKG, "RunScriptDialog.TestFailed.DialogMessage" ), testException );
+          new ErrorDialog( shell, BaseMessages.getString( PKG, "SuperScriptDialog.TestFailed.DialogTitle" ), BaseMessages.getString( PKG, "SuperScriptDialog.TestFailed.DialogMessage" ), testException );
         }
       }
     } catch ( KettleException ke ) {
       testValue = false;
-      new ErrorDialog( shell, BaseMessages.getString( PKG, "RunScriptDialog.TestFailed.DialogTitle" ), BaseMessages.getString( PKG, "RunScriptDialog.TestFailed.DialogMessage" ), ke );
+      new ErrorDialog( shell, BaseMessages.getString( PKG, "SuperScriptDialog.TestFailed.DialogTitle" ), BaseMessages.getString( PKG, "SuperScriptDialog.TestFailed.DialogMessage" ), ke );
     } finally {
       if ( context != null ) {
         Context.exit();
@@ -1498,7 +1498,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
 
     TreeItem item = new TreeItem( wTree, SWT.NULL );
     item.setImage( guiresource.getImageBol() );
-    item.setText( BaseMessages.getString( PKG, "RunScriptDialog.TransformConstant.Label" ) );
+    item.setText( BaseMessages.getString( PKG, "SuperScriptDialog.TransformConstant.Label" ) );
     TreeItem itemT = new TreeItem( item, SWT.NULL );
     itemT.setImage( imageArrowGreen );
     itemT.setText( "SKIP_TRANSFORMATION" );
@@ -1541,13 +1541,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
           String strItemInToAdd = "";
           String strItemToAddOut = "";
 
-          //try{
-
-          //RowMetaInterface r = transMeta.getPrevStepFields(stepname);
           if ( rowPrevStepFields != null ) {
-            //TreeItem item = new TreeItem(wTree, SWT.NULL);
-            //item.setText(BaseMessages.getString(PKG, "RunScriptDialog.OutputFields.Label"));
-            //String strItemToAdd="";
 
             for ( int i = 0; i < rowPrevStepFields.size(); i++ ) {
               ValueMetaInterface v = rowPrevStepFields.getValueMeta( i );
@@ -1559,16 +1553,6 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
               itemFields.setText( strItemInToAdd );
               itemFields.setData( strItemInToAdd );
 
-								/*
-                switch(v.getType()){
-									case ValueMetaInterface.TYPE_STRING : 
-									case ValueMetaInterface.TYPE_NUMBER : 
-									case ValueMetaInterface.TYPE_INTEGER: 
-									case ValueMetaInterface.TYPE_DATE   : 
-									case ValueMetaInterface.TYPE_BOOLEAN: 
-										strItemToAdd=v.getName()+".setValue(var)"; break; 
-									default: strItemToAdd=v.getName(); break;
-								}*/
               itemFields = new TreeItem( itemoutput, SWT.NULL );
               itemFields.setImage( imageArrowOrange );
               itemFields.setText( strItemToAddOut );
@@ -1586,60 +1570,12 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
               itemFields.setData( strItemToAddOut );
             }
           }
-        /*}catch(KettleException ke){
-          new ErrorDialog(shell, BaseMessages.getString(PKG, "RunScriptDialog.FailedToGetFields.DialogTitle"), BaseMessages.getString(PKG, "RunScriptDialog.FailedToGetFields.DialogMessage"), ke);
-				}*/
+
         }
       }
     );
   }
 
-	/*
-  private void rebuildInputFieldsTree(){
-		try{
-			String itemName = BaseMessages.getString(PKG, "RunScriptDialog.InputFields.Label");
-			
-			RowMetaInterface r = transMeta.getPrevStepFields(stepname);
-			if (r!=null){
-				TreeItem item = null;
-				for (TreeItem look : wTree.getItems()) {
-					if (look.getText().equals(itemName)) {
-						// This is the rebuild part!
-						for (TreeItem child : look.getItems()) child.dispose(); // clear the children.
-						item=look;
-						break;
-					}
-				}
-				if (item==null)  item = new TreeItem(wTree, SWT.NULL);
-				item.setText(itemName);
-				String strItemToAdd="";
-				for (int i=0;i<r.size();i++){
-						ValueMetaInterface v = r.getValueMeta(i);
-						if (wCompatible.getSelection()) {
-							switch(v.getType()){
-								case ValueMetaInterface.TYPE_STRING : strItemToAdd=v.getName()+".getString()"; break; 
-								case ValueMetaInterface.TYPE_NUMBER : strItemToAdd=v.getName()+".getNumber()"; break; 
-								case ValueMetaInterface.TYPE_INTEGER: strItemToAdd=v.getName()+".getInteger()"; break; 
-								case ValueMetaInterface.TYPE_DATE   : strItemToAdd=v.getName()+".getDate()"; break; 
-								case ValueMetaInterface.TYPE_BOOLEAN: strItemToAdd=v.getName()+".getBoolean()"; break; 
-								case ValueMetaInterface.TYPE_BIGNUMBER: strItemToAdd=v.getName()+".getBigNumber()"; break; 
-								case ValueMetaInterface.TYPE_BINARY: strItemToAdd=v.getName()+".getBytes()"; break; 
-								case ValueMetaInterface.TYPE_SERIALIZABLE: strItemToAdd=v.getName()+".getSerializable()"; break; 
-								default: strItemToAdd=v.getName(); break;
-							}
-						}
-						else {
-							strItemToAdd=v.getName();
-						}
-						TreeItem itemInputFields = new TreeItem(item, SWT.NULL);
-						itemInputFields.setText(strItemToAdd);
-						itemInputFields.setData(strItemToAdd);
-					}
-			}
-		}catch(KettleException ke){
-			new ErrorDialog(shell, BaseMessages.getString(PKG, "RunScriptDialog.FailedToGetFields.DialogTitle"), BaseMessages.getString(PKG, "RunScriptDialog.FailedToGetFields.DialogMessage"), ke);  
-		}
-	}*/
 
   // Adds the Current item to the current Position
   private void treeDblClick( Event event ) {
@@ -1690,14 +1626,14 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
           String strClassType = input.getAddClasses()[i].getAddClass().toString();
           String strParams;
           wTreeClassesitem = new TreeItem( wTree, SWT.NULL );
-          wTreeClassesitem.setText( input.getAddClasses()[i].getJSName() );
+          wTreeClassesitem.setText( input.getAddClasses()[i].getScriptName() );
           for ( int j = 0; j < methods.length; j++ ) {
             String strDeclaringClass = methods[j].getDeclaringClass().toString();
             if ( strClassType.equals( strDeclaringClass ) ) {
               TreeItem item2 = new TreeItem( wTreeClassesitem, SWT.NULL );
               strParams = buildAddClassFunctionName( methods[j] );
               item2.setText( methods[j].getName() + "(" + strParams + ")" );
-              String strData = input.getAddClasses()[i].getJSName() + "." + methods[j].getName() + "(" + strParams + ")";
+              String strData = input.getAddClasses()[i].getScriptName() + "." + methods[j].getName() + "(" + strParams + ")";
               item2.setData( strData );
             }
           }
@@ -1740,7 +1676,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
   private void buildingFolderMenu() {
     //styledTextPopupmenu = new Menu(, SWT.POP_UP);
     MenuItem addNewItem = new MenuItem( cMenu, SWT.PUSH );
-    addNewItem.setText( BaseMessages.getString( PKG, "RunScriptDialog.AddNewTab" ) );
+    addNewItem.setText( BaseMessages.getString( PKG, "SuperScriptDialog.AddNewTab" ) );
     addNewItem.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
         addCtab( "", "", ADD_BLANK );
@@ -1748,7 +1684,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     } );
 
     MenuItem copyItem = new MenuItem( cMenu, SWT.PUSH );
-    copyItem.setText( BaseMessages.getString( PKG, "RunScriptDialog.AddCopy" ) );
+    copyItem.setText( BaseMessages.getString( PKG, "SuperScriptDialog.AddCopy" ) );
     copyItem.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
         CTabItem item = folder.getSelection();
@@ -1759,7 +1695,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     new MenuItem( cMenu, SWT.SEPARATOR );
 
     MenuItem setActiveScriptItem = new MenuItem( cMenu, SWT.PUSH );
-    setActiveScriptItem.setText( BaseMessages.getString( PKG, "RunScriptDialog.SetTransformScript" ) );
+    setActiveScriptItem.setText( BaseMessages.getString( PKG, "SuperScriptDialog.SetTransformScript" ) );
     setActiveScriptItem.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
         CTabItem item = folder.getSelection();
@@ -1783,7 +1719,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     } );
 
     MenuItem setStartScriptItem = new MenuItem( cMenu, SWT.PUSH );
-    setStartScriptItem.setText( BaseMessages.getString( PKG, "RunScriptDialog.SetStartScript" ) );
+    setStartScriptItem.setText( BaseMessages.getString( PKG, "SuperScriptDialog.SetStartScript" ) );
     setStartScriptItem.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
         CTabItem item = folder.getSelection();
@@ -1807,7 +1743,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     } );
 
     MenuItem setEndScriptItem = new MenuItem( cMenu, SWT.PUSH );
-    setEndScriptItem.setText( BaseMessages.getString( PKG, "RunScriptDialog.SetEndScript" ) );
+    setEndScriptItem.setText( BaseMessages.getString( PKG, "SuperScriptDialog.SetEndScript" ) );
     setEndScriptItem.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
         CTabItem item = folder.getSelection();
@@ -1831,7 +1767,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     } );
     new MenuItem( cMenu, SWT.SEPARATOR );
     MenuItem setRemoveScriptItem = new MenuItem( cMenu, SWT.PUSH );
-    setRemoveScriptItem.setText( BaseMessages.getString( PKG, "RunScriptDialog.RemoveScriptType" ) );
+    setRemoveScriptItem.setText( BaseMessages.getString( PKG, "SuperScriptDialog.RemoveScriptType" ) );
     setRemoveScriptItem.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
         CTabItem item = folder.getSelection();
@@ -1853,7 +1789,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
   private void buildingTreeMenu() {
     //styledTextPopupmenu = new Menu(, SWT.POP_UP);
     MenuItem addDeleteItem = new MenuItem( tMenu, SWT.PUSH );
-    addDeleteItem.setText( BaseMessages.getString( PKG, "RunScriptDialog.Delete.Label" ) );
+    addDeleteItem.setText( BaseMessages.getString( PKG, "SuperScriptDialog.Delete.Label" ) );
     addDeleteItem.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
         if ( wTree.getSelectionCount() <= 0 ) {
@@ -1863,8 +1799,8 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
         TreeItem tItem = wTree.getSelection()[0];
         if ( tItem != null ) {
           MessageBox messageBox = new MessageBox( shell, SWT.ICON_QUESTION | SWT.NO | SWT.YES );
-          messageBox.setText( BaseMessages.getString( PKG, "RunScriptDialog.DeleteItem.Label" ) );
-          messageBox.setMessage( BaseMessages.getString( PKG, "RunScriptDialog.ConfirmDeleteItem.Label", tItem.getText() ) );
+          messageBox.setText( BaseMessages.getString( PKG, "SuperScriptDialog.DeleteItem.Label" ) );
+          messageBox.setMessage( BaseMessages.getString( PKG, "SuperScriptDialog.ConfirmDeleteItem.Label", tItem.getText() ) );
           switch ( messageBox.open() ) {
             case SWT.YES:
               modifyCTabItem( tItem, DELETE_ITEM, "" );
@@ -1879,33 +1815,12 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     } );
 
     MenuItem renItem = new MenuItem( tMenu, SWT.PUSH );
-    renItem.setText( BaseMessages.getString( PKG, "RunScriptDialog.Rename.Label" ) );
+    renItem.setText( BaseMessages.getString( PKG, "SuperScriptDialog.Rename.Label" ) );
     renItem.addListener( SWT.Selection, new Listener() {
       public void handleEvent( Event e ) {
         renameFunction( wTree.getSelection()[0] );
       }
     } );
-
-    new MenuItem( tMenu, SWT.SEPARATOR );
-    MenuItem helpItem = new MenuItem( tMenu, SWT.PUSH );
-    helpItem.setText( BaseMessages.getString( PKG, "RunScriptDialog.Sample.Label" ) );
-    helpItem.addListener( SWT.Selection, new Listener() {
-      public void handleEvent( Event e ) {
-        String strFunctionName = wTree.getSelection()[0].getText();
-        String strFunctionNameWithArgs = strFunctionName;
-        strFunctionName = strFunctionName.substring( 0, strFunctionName.indexOf( '(' ) );
-        String strHelpTabName = strFunctionName + "_Sample";
-
-        /*if ( getCTabPosition( strHelpTabName ) == -1 ) {
-          addCtab( strHelpTabName, scVHelp.getSample( strFunctionName, strFunctionNameWithArgs ), 0 );
-        }*/
-
-        if ( getCTabPosition( strHelpTabName ) != -1 ) {
-          setActiveCtab( strHelpTabName );
-        }
-      }
-    } );
-
 
     wTree.addListener( SWT.MouseDown, new Listener() {
       public void handleEvent( Event e ) {
@@ -1918,25 +1833,14 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
           TreeItem pItem = tItem.getParentItem();
 
           if ( pItem != null && pItem.equals( wTreeScriptsItem ) ) {
-            if ( folder.getItemCount() > 1 ) {
-              tMenu.getItem( 0 ).setEnabled( true );
-            } else {
-              tMenu.getItem( 0 ).setEnabled( false );
-            }
+            tMenu.getItem( 0 ).setEnabled( folder.getItemCount() > 1 );
             tMenu.getItem( 1 ).setEnabled( true );
-            tMenu.getItem( 3 ).setEnabled( false );
           } else if ( tItem.equals( wTreeClassesitem ) ) {
             tMenu.getItem( 0 ).setEnabled( false );
             tMenu.getItem( 1 ).setEnabled( false );
-            tMenu.getItem( 3 ).setEnabled( false );
-          } else if ( tItem.getData() != null && tItem.getData().equals( "jsFunction" ) ) {
-            tMenu.getItem( 0 ).setEnabled( false );
-            tMenu.getItem( 1 ).setEnabled( false );
-            tMenu.getItem( 3 ).setEnabled( true );
           } else {
             tMenu.getItem( 0 ).setEnabled( false );
             tMenu.getItem( 1 ).setEnabled( false );
-            tMenu.getItem( 3 ).setEnabled( false );
           }
         }
       }
@@ -1944,7 +1848,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     wTree.setMenu( tMenu );
   }
 
-  private void addRenameTowTreeScriptItems() {
+  private void addRenameToTreeScriptItems() {
     lastItem = new TreeItem[1];
     editor = new TreeEditor( wTree );
     wTree.addListener( SWT.Selection, new Listener() {
@@ -2052,7 +1956,7 @@ public class RunScriptDialog extends BaseStepDialog implements StepDialogInterfa
     Parser p = new Parser( evn, errorReporter );
     ScriptNode tree = p.parse( source, "", 0 ); // IOException
     new NodeTransformer().transform( tree );
-    //RunScript result = (RunScript)compiler.compile(scope, evn, tree, p.getEncodedSource(),false, null);
+    //SuperScript result = (SuperScript)compiler.compile(scope, evn, tree, p.getEncodedSource(),false, null);
     return tree;
   }
 }

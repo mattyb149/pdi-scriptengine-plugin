@@ -20,21 +20,19 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.scriptengines;
+package org.pentaho.di.trans.steps.superscript;
 
 public class ScriptAddClasses {
 
 	private Class<?>	addClass;
 	private Object		addObject;
-	private String		strJSName;
+	private String    scriptName;
 
-	// private String strJarFile;
-
-	public ScriptAddClasses(Class<?> addClass, Object addObject, String strJSName) {
+	public ScriptAddClasses(Class<?> addClass, Object addObject, String scriptName ) {
 		super();
 		this.addClass = addClass;
 		this.addObject = addObject;
-		this.strJSName = strJSName;
+		this.scriptName = scriptName;
 	}
 
 	public Class<?> getAddClass() {
@@ -45,7 +43,7 @@ public class ScriptAddClasses {
 		return this.addObject;
 	}
 
-	public String getJSName() {
-		return this.strJSName;
+	public String getScriptName() {
+		return this.scriptName;
 	}
 }

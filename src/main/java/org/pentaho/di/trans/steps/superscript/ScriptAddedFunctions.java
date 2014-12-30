@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.scriptengines;
+package org.pentaho.di.trans.steps.superscript;
 
 public class ScriptAddedFunctions {
 	

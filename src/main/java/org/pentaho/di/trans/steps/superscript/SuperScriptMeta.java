@@ -20,7 +20,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.scriptengines;
+package org.pentaho.di.trans.steps.superscript;
 
 import java.math.BigDecimal;
 import java.net.URL;
@@ -66,10 +66,10 @@ import org.pentaho.metastore.api.IMetaStore;
 import org.w3c.dom.Document;
 import org.w3c.dom.Node;
 
-@Step( id = "RunScript", image = "run-script.png", name = "Run Script",
-  description = "Executes a compiledScript for a JSR-223 compiledScript engine", categoryDescription = "Scripting" )
-public class RunScriptMeta extends BaseStepMeta implements StepMetaInterface {
-  private static Class<?> PKG = RunScriptMeta.class; // for i18n purposes, needed by Translator2!! $NON-NLS-1$
+@Step( id = "SuperScript", image = "superscript.png", name = "SuperScript",
+  description = "Executes scripts for JSR-223 Script Engines", categoryDescription = "Scripting" )
+public class SuperScriptMeta extends BaseStepMeta implements StepMetaInterface {
+  private static Class<?> PKG = SuperScriptMeta.class; // for i18n purposes, needed by Translator2!! $NON-NLS-1$
 
   private static final String SCRIPT_LANGUAGE_NAME = "scriptLanguage";
   private static final String SCRIPT_TAG_TYPE = "scriptType";
@@ -89,7 +89,7 @@ public class RunScriptMeta extends BaseStepMeta implements StepMetaInterface {
   private boolean replace[]; // Replace the specified field.
   private boolean scriptResult[]; // Does this field contain the result of the compiledScript evaluation?
 
-  public RunScriptMeta() {
+  public SuperScriptMeta() {
     super(); // allocate BaseStepMeta
     try {
       parseXmlForAdditionalClasses();
@@ -209,7 +209,7 @@ public class RunScriptMeta extends BaseStepMeta implements StepMetaInterface {
   }
 
   public Object clone() {
-    RunScriptMeta retval = (RunScriptMeta) super.clone();
+    SuperScriptMeta retval = (SuperScriptMeta) super.clone();
 
     int nrfields = fieldname.length;
 
@@ -263,7 +263,7 @@ public class RunScriptMeta extends BaseStepMeta implements StepMetaInterface {
       }
     } catch ( Exception e ) {
       throw new KettleXMLException( BaseMessages.getString( PKG,
-        "RunScriptMeta.Exception.UnableToLoadStepInfoFromXML" ), e );
+        "SuperScriptMeta.Exception.UnableToLoadStepInfoFromXML" ), e );
     }
   }
 
@@ -271,7 +271,7 @@ public class RunScriptMeta extends BaseStepMeta implements StepMetaInterface {
     scripts = new ScriptValuesScript[1];
     scripts[0] =
       new ScriptValuesScript( ScriptValuesScript.TRANSFORM_SCRIPT, BaseMessages.getString( PKG,
-        "RunScript.Script1" ), "//" + BaseMessages.getString( PKG, "RunScript.ScriptHere" ) + Const.CR
+        "SuperScript.Script1" ), "//" + BaseMessages.getString( PKG, "SuperScript.ScriptHere" ) + Const.CR
         + Const.CR );
 
     int nrfields = 0;
@@ -301,7 +301,7 @@ public class RunScriptMeta extends BaseStepMeta implements StepMetaInterface {
           //
           if ( row.searchValueMeta( fieldname[i] ) == null && Const.isEmpty( rename[i] ) ) {
             throw new KettleStepException( BaseMessages.getString( PKG,
-              "RunScriptMeta.Exception.FieldToReplaceNotFound", fieldname[i] ) );
+              "SuperScriptMeta.Exception.FieldToReplaceNotFound", fieldname[i] ) );
           }
           replaceIndex = row.indexOfValue( rename[i] );
 
@@ -405,7 +405,7 @@ public class RunScriptMeta extends BaseStepMeta implements StepMetaInterface {
       }
     } catch ( Exception e ) {
       throw new KettleException( BaseMessages.getString( PKG,
-        "RunScriptMeta.Exception.UnexpectedErrorInReadingStepInfo" ), e );
+        "SuperScriptMeta.Exception.UnexpectedErrorInReadingStepInfo" ), e );
     }
   }
 
@@ -431,7 +431,7 @@ public class RunScriptMeta extends BaseStepMeta implements StepMetaInterface {
         rep.saveStepAttribute( id_transformation, id_step, i, "script_result", scriptResult[i] );
       }
     } catch ( Exception e ) {
-      throw new KettleException( BaseMessages.getString( PKG, "RunScriptMeta.Exception.UnableToSaveStepInfo" )
+      throw new KettleException( BaseMessages.getString( PKG, "SuperScriptMeta.Exception.UnableToSaveStepInfo" )
         + id_step, e );
     }
   }
@@ -447,7 +447,7 @@ public class RunScriptMeta extends BaseStepMeta implements StepMetaInterface {
     Bindings jsscope;
     CompiledScript jsscript;
 
-    jscx = RunScriptUtils.createNewScriptEngineByLanguage( getLanguageName() );
+    jscx = ScriptUtils.createNewScriptEngineByLanguage( getLanguageName() );
     jsscope = jscx.getBindings( ScriptContext.ENGINE_SCOPE );
 
     // String strActiveScriptName="";
@@ -477,7 +477,7 @@ public class RunScriptMeta extends BaseStepMeta implements StepMetaInterface {
     if ( prev != null && strActiveScript.length() > 0 ) {
       cr =
         new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-          "RunScriptMeta.CheckResult.ConnectedStepOK", String.valueOf( prev.size() ) ), stepMeta );
+          "SuperScriptMeta.CheckResult.ConnectedStepOK", String.valueOf( prev.size() ) ), stepMeta );
       remarks.add( cr );
 
       // Adding the existing Scripts to the Context
@@ -485,15 +485,15 @@ public class RunScriptMeta extends BaseStepMeta implements StepMetaInterface {
         jsscope.put( scripts[i].getScriptName(), scripts[i].getScript() );
       }
 
-      // Modification for Additional RunScript parsing
+      // Modification for Additional SuperScript parsing
       try {
         if ( getAddClasses() != null ) {
           for ( int i = 0; i < getAddClasses().length; i++ ) {
             // TODO AKRETION ensure it works
-            jsscope.put( getAddClasses()[i].getJSName(), getAddClasses()[i].getAddObject() );
+            jsscope.put( getAddClasses()[i].getScriptName(), getAddClasses()[i].getAddObject() );
             // Object jsOut = Context.javaToJS(getAddClasses()[i].getAddObject(), jsscope);
-            // ScriptableObject.putProperty(jsscope, getAddClasses()[i].getJSName(), jsOut);
-            // ScriptableObject.putProperty(jsscope, getAddClasses()[i].getJSName(), jsOut);
+            // ScriptableObject.putProperty(jsscope, getAddClasses()[i].getScriptName(), jsOut);
+            // ScriptableObject.putProperty(jsscope, getAddClasses()[i].getScriptName(), jsOut);
           }
         }
       } catch ( Exception e ) {
@@ -504,10 +504,10 @@ public class RunScriptMeta extends BaseStepMeta implements StepMetaInterface {
 
       // Adding some Constants to the compiledScript
       try {
-        jsscope.put( "SKIP_TRANSFORMATION", Integer.valueOf( RunScript.SKIP_TRANSFORMATION ) );
-        jsscope.put( "ABORT_TRANSFORMATION", Integer.valueOf( RunScript.ABORT_TRANSFORMATION ) );
-        jsscope.put( "ERROR_TRANSFORMATION", Integer.valueOf( RunScript.ERROR_TRANSFORMATION ) );
-        jsscope.put( "CONTINUE_TRANSFORMATION", Integer.valueOf( RunScript.CONTINUE_TRANSFORMATION ) );
+        jsscope.put( "SKIP_TRANSFORMATION", Integer.valueOf( SuperScript.SKIP_TRANSFORMATION ) );
+        jsscope.put( "ABORT_TRANSFORMATION", Integer.valueOf( SuperScript.ABORT_TRANSFORMATION ) );
+        jsscope.put( "ERROR_TRANSFORMATION", Integer.valueOf( SuperScript.ERROR_TRANSFORMATION ) );
+        jsscope.put( "CONTINUE_TRANSFORMATION", Integer.valueOf( SuperScript.CONTINUE_TRANSFORMATION ) );
       } catch ( Exception ex ) {
         error_message = "Couldn't add Transformation Constants! Error:" + Const.CR + ex.toString();
         cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, stepMeta );
@@ -560,7 +560,7 @@ public class RunScriptMeta extends BaseStepMeta implements StepMetaInterface {
         //
         jsscope.put( "row", row );
       } catch ( Exception ev ) {
-        error_message = "Couldn't add Input fields to RunScript! Error:" + Const.CR + ev.toString();
+        error_message = "Couldn't add Input fields to SuperScript! Error:" + Const.CR + ev.toString();
         cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, stepMeta );
         remarks.add( cr );
       }
@@ -569,12 +569,12 @@ public class RunScriptMeta extends BaseStepMeta implements StepMetaInterface {
         // Checking for StartScript
         if ( strActiveStartScript != null && strActiveStartScript.length() > 0 ) {
           jscx.eval( strActiveStartScript, jsscope );
-          error_message = "Found Start RunScript. " + strActiveStartScriptName + " Processing OK";
+          error_message = "Found Start SuperScript. " + strActiveStartScriptName + " Processing OK";
           cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, error_message, stepMeta );
           remarks.add( cr );
         }
       } catch ( Exception e ) {
-        error_message = "Couldn't process Start RunScript! Error:" + Const.CR + e.toString();
+        error_message = "Couldn't process Start SuperScript! Error:" + Const.CR + e.toString();
         cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, stepMeta );
         remarks.add( cr );
       }
@@ -583,7 +583,7 @@ public class RunScriptMeta extends BaseStepMeta implements StepMetaInterface {
         jsscript = ( (Compilable) jscx ).compile( strActiveScript );
 
         // cr = new CheckResult(CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString(PKG,
-        // "RunScriptMeta.CheckResult.ScriptCompiledOK"), stepinfo);
+        // "SuperScriptMeta.CheckResult.ScriptCompiledOK"), stepinfo);
         // remarks.add(cr);
 
         try {
@@ -592,12 +592,12 @@ public class RunScriptMeta extends BaseStepMeta implements StepMetaInterface {
 
           cr =
             new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-              "RunScriptMeta.CheckResult.ScriptCompiledOK2" ), stepMeta );
+              "SuperScriptMeta.CheckResult.ScriptCompiledOK2" ), stepMeta );
           remarks.add( cr );
 
           if ( fieldname.length > 0 ) {
             StringBuffer message =
-              new StringBuffer( BaseMessages.getString( PKG, "RunScriptMeta.CheckResult.FailedToGetValues",
+              new StringBuffer( BaseMessages.getString( PKG, "SuperScriptMeta.CheckResult.FailedToGetValues",
                 String.valueOf( fieldname.length ) )
                 + Const.CR + Const.CR );
 
@@ -611,44 +611,44 @@ public class RunScriptMeta extends BaseStepMeta implements StepMetaInterface {
         } catch ( ScriptException jse ) {
           // Context.exit(); TODO AKRETION NOT SURE
           error_message =
-            BaseMessages.getString( PKG, "RunScriptMeta.CheckResult.CouldNotExecuteScript" ) + Const.CR
+            BaseMessages.getString( PKG, "SuperScriptMeta.CheckResult.CouldNotExecuteScript" ) + Const.CR
               + jse.toString();
           cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, stepMeta );
           remarks.add( cr );
         } catch ( Exception e ) {
           // Context.exit(); TODO AKRETION NOT SURE
           error_message =
-            BaseMessages.getString( PKG, "RunScriptMeta.CheckResult.CouldNotExecuteScript2" ) + Const.CR
+            BaseMessages.getString( PKG, "SuperScriptMeta.CheckResult.CouldNotExecuteScript2" ) + Const.CR
               + e.toString();
           cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, stepMeta );
           remarks.add( cr );
         }
 
-        // Checking End RunScript
+        // Checking End SuperScript
         try {
           if ( strActiveEndScript != null && strActiveEndScript.length() > 0 ) {
             /* Object endScript = */
             jscx.eval( strActiveEndScript, jsscope );
-            error_message = "Found End RunScript. " + strActiveEndScriptName + " Processing OK";
+            error_message = "Found End SuperScript. " + strActiveEndScriptName + " Processing OK";
             cr = new CheckResult( CheckResultInterface.TYPE_RESULT_OK, error_message, stepMeta );
             remarks.add( cr );
           }
         } catch ( Exception e ) {
-          error_message = "Couldn't process End RunScript! Error:" + Const.CR + e.toString();
+          error_message = "Couldn't process End SuperScript! Error:" + Const.CR + e.toString();
           cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, stepMeta );
           remarks.add( cr );
         }
       } catch ( Exception e ) {
         // Context.exit(); TODO AKRETION NOT SURE
         error_message =
-          BaseMessages.getString( PKG, "RunScriptMeta.CheckResult.CouldNotCompileScript" ) + Const.CR
+          BaseMessages.getString( PKG, "SuperScriptMeta.CheckResult.CouldNotCompileScript" ) + Const.CR
             + e.toString();
         cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, stepMeta );
         remarks.add( cr );
       }
     } else {
       // Context.exit(); TODO AKRETION NOT SURE
-      error_message = BaseMessages.getString( PKG, "RunScriptMeta.CheckResult.CouldNotGetFieldsFromPreviousStep" );
+      error_message = BaseMessages.getString( PKG, "SuperScriptMeta.CheckResult.CouldNotGetFieldsFromPreviousStep" );
       cr = new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, error_message, stepMeta );
       remarks.add( cr );
     }
@@ -657,12 +657,12 @@ public class RunScriptMeta extends BaseStepMeta implements StepMetaInterface {
     if ( input.length > 0 ) {
       cr =
         new CheckResult( CheckResultInterface.TYPE_RESULT_OK, BaseMessages.getString( PKG,
-          "RunScriptMeta.CheckResult.ConnectedStepOK2" ), stepMeta );
+          "SuperScriptMeta.CheckResult.ConnectedStepOK2" ), stepMeta );
       remarks.add( cr );
     } else {
       cr =
         new CheckResult( CheckResultInterface.TYPE_RESULT_ERROR, BaseMessages.getString( PKG,
-          "RunScriptMeta.CheckResult.NoInputReceived" ), stepMeta );
+          "SuperScriptMeta.CheckResult.NoInputReceived" ), stepMeta );
       remarks.add( cr );
     }
   }
@@ -788,16 +788,16 @@ public class RunScriptMeta extends BaseStepMeta implements StepMetaInterface {
         }
       } catch ( Exception e ) {
         message.append( BaseMessages
-          .getString( PKG, "RunScriptMeta.CheckResult.ErrorRetrievingValue", fieldname[i] )
+          .getString( PKG, "SuperScriptMeta.CheckResult.ErrorRetrievingValue", fieldname[i] )
           + " : " + e.toString() );
         error_found = true;
       }
       res.setLength( length[i], precision[i] );
 
-      message.append( BaseMessages.getString( PKG, "RunScriptMeta.CheckResult.RetrievedValue", fieldname[i], res
+      message.append( BaseMessages.getString( PKG, "SuperScriptMeta.CheckResult.RetrievedValue", fieldname[i], res
         .toStringMeta() ) );
     } else {
-      message.append( BaseMessages.getString( PKG, "RunScriptMeta.CheckResult.ValueIsEmpty", String.valueOf( i ) ) );
+      message.append( BaseMessages.getString( PKG, "SuperScriptMeta.CheckResult.ValueIsEmpty", String.valueOf( i ) ) );
       error_found = true;
     }
 
@@ -806,11 +806,11 @@ public class RunScriptMeta extends BaseStepMeta implements StepMetaInterface {
 
   public StepInterface getStep( StepMeta stepMeta, StepDataInterface stepDataInterface, int cnr, TransMeta transMeta,
                                 Trans trans ) {
-    return new RunScript( stepMeta, stepDataInterface, cnr, transMeta, trans );
+    return new SuperScript( stepMeta, stepDataInterface, cnr, transMeta, trans );
   }
 
   public StepDataInterface getStepData() {
-    return new RunScriptData();
+    return new SuperScriptData();
   }
 
   // This is for Additional Classloading
@@ -836,7 +836,7 @@ public class RunScriptMeta extends BaseStepMeta implements StepMetaInterface {
       }
     } catch ( Exception e ) {
       throw new KettleException( BaseMessages.getString( PKG,
-        "RunScriptMeta.Exception.UnableToParseXMLforAdditionalClasses" ), e );
+        "SuperScriptMeta.Exception.UnableToParseXMLforAdditionalClasses" ), e );
     }
   }
 
@@ -850,7 +850,7 @@ public class RunScriptMeta extends BaseStepMeta implements StepMetaInterface {
       return toRun;
     } catch ( Exception e ) {
       throw new KettleException( BaseMessages
-        .getString( PKG, "RunScriptMeta.Exception.UnableToLoadAdditionalClass" ), e );
+        .getString( PKG, "SuperScriptMeta.Exception.UnableToLoadAdditionalClass" ), e );
     }
   }
 

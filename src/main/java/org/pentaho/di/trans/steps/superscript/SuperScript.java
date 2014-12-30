@@ -18,7 +18,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.scriptengines;
+package org.pentaho.di.trans.steps.superscript;
 
 import java.math.BigDecimal;
 import java.util.Date;
@@ -47,12 +47,12 @@ import org.pentaho.di.trans.step.StepMetaInterface;
  *
  * @author Matt Burgess
  */
-public class RunScript extends BaseStep implements StepInterface {
-  private static Class<?> PKG = RunScriptMeta.class; // for i18n purposes, needed by Translator2!!
+public class SuperScript extends BaseStep implements StepInterface {
+  private static Class<?> PKG = SuperScriptMeta.class; // for i18n purposes, needed by Translator2!!
 
-  private RunScriptMeta meta;
+  private SuperScriptMeta meta;
 
-  private RunScriptData data;
+  private SuperScriptData data;
 
   public final static int SKIP_TRANSFORMATION = 1;
 
@@ -84,12 +84,16 @@ public class RunScript extends BaseStep implements StepInterface {
 
   private Object[] lastRow = null;
 
-  public RunScript( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
-                    Trans trans ) {
+  public SuperScript( StepMeta stepMeta, StepDataInterface stepDataInterface, int copyNr, TransMeta transMeta,
+                      Trans trans ) {
     super( stepMeta, stepDataInterface, copyNr, transMeta, trans );
   }
 
   private void determineUsedFields( RowMetaInterface row ) {
+    if ( row == null ) {
+      return;
+    }
+
     int nr = 0;
     // Count the occurrences of the values.
     // Perhaps we find values in comments, but we take no risk!
@@ -115,7 +119,7 @@ public class RunScript extends BaseStep implements StepInterface {
       String valname = row.getValueMeta( i ).getName();
       if ( strTransformScript.indexOf( valname ) >= 0 ) {
         if ( log.isDetailed() ) {
-          logDetailed( BaseMessages.getString( PKG, "RunScript.Log.UsedValueName", String.valueOf( i ), valname ) ); //$NON-NLS-3$
+          logDetailed( BaseMessages.getString( PKG, "SuperScript.Log.UsedValueName", String.valueOf( i ), valname ) ); //$NON-NLS-3$
         }
         data.fields_used[nr] = i;
         nr++;
@@ -123,7 +127,7 @@ public class RunScript extends BaseStep implements StepInterface {
     }
 
     if ( log.isDetailed() ) {
-      logDetailed( BaseMessages.getString( PKG, "RunScript.Log.UsingValuesFromInputStream", String
+      logDetailed( BaseMessages.getString( PKG, "SuperScript.Log.UsingValuesFromInputStream", String
         .valueOf( data.fields_used.length ) ) );
     }
   }
@@ -132,13 +136,10 @@ public class RunScript extends BaseStep implements StepInterface {
     if ( first ) {
       first = false;
 
-      // What is the output row looking like?
-      //
-      if ( rowMeta != null ) {
-        data.outputRowMeta = rowMeta.clone();
-      } else {
-        data.outputRowMeta = new RowMeta();
+      if ( rowMeta == null ) {
+        rowMeta = new RowMeta();
       }
+      data.outputRowMeta = rowMeta.clone();
       meta.getFields( data.outputRowMeta, getStepname(), null, null, this, repository, metaStore );
 
       // Determine the indexes of the fields used!
@@ -167,7 +168,6 @@ public class RunScript extends BaseStep implements StepInterface {
         }
       }
 
-      data.engine = RunScriptUtils.createNewScriptEngineByLanguage( meta.getLanguageName() );
       data.context = data.engine.getContext();
       if ( data.context == null ) {
         data.context = new SimpleScriptContext();
@@ -190,39 +190,41 @@ public class RunScript extends BaseStep implements StepInterface {
       bindings.put( "transName", this.getTrans().getName() );
 
       try {
-
-        bindings.put( "row", row );
         try {
+          bindings.put( "row", row );
           bindings.put( "lastRow", lastRow );
+
+          // also add the meta information for the whole row
+          //
+          bindings.put( "rowMeta", rowMeta );
+
+          // Add the used fields...
+          //
+          if ( data.fields_used != null ) {
+            for ( int i = 0; i < data.fields_used.length; i++ ) {
+              ValueMetaInterface valueMeta = rowMeta.getValueMeta( data.fields_used[i] );
+              Object valueData = row[data.fields_used[i]];
+
+              Object normalStorageValueData = valueMeta.convertToNormalStorageType( valueData );
+              bindings.put( valueMeta.getName(), normalStorageValueData );
+            }
+          }
+
         } catch ( Throwable t ) {
-          logError( BaseMessages.getString( PKG, "RunScript.Exception.ErrorSettingVariable", "lastRow" ), t );
+          logError( BaseMessages.getString( PKG, "SuperScript.Exception.ErrorSettingVariable" ), t );
         }
 
-        // Add the used fields...
-        //
-        for ( int i = 0; i < data.fields_used.length; i++ ) {
-          ValueMetaInterface valueMeta = rowMeta.getValueMeta( data.fields_used[i] );
-          Object valueData = row[data.fields_used[i]];
-
-          Object normalStorageValueData = valueMeta.convertToNormalStorageType( valueData );
-          bindings.put( valueMeta.getName(), normalStorageValueData );
-        }
-
-        // also add the meta information for the whole row
-        //
-        bindings.put( "rowMeta", rowMeta );
-
-        // Modification for Additional RunScript parsing
+        // Modification for Additional SuperScript parsing
         //
         try {
           if ( meta.getAddClasses() != null ) {
             for ( int i = 0; i < meta.getAddClasses().length; i++ ) {
-              bindings.put( meta.getAddClasses()[i].getJSName(), meta.getAddClasses()[i].getAddObject() );
+              bindings.put( meta.getAddClasses()[i].getScriptName(), meta.getAddClasses()[i].getAddObject() );
             }
           }
         } catch ( Exception e ) {
           throw new KettleValueException( BaseMessages.getString( PKG,
-            "RunScript.Log.CouldNotAttachAdditionalScripts" ), e );
+            "SuperScript.Log.CouldNotAttachAdditionalScripts" ), e );
         }
 
         // Adding some Constants to the compiledScript
@@ -235,7 +237,7 @@ public class RunScript extends BaseStep implements StepInterface {
 
         } catch ( Exception ex ) {
           throw new KettleValueException(
-            BaseMessages.getString( PKG, "RunScript.Log.CouldNotAddDefaultConstants" ), ex );
+            BaseMessages.getString( PKG, "SuperScript.Log.CouldNotAddDefaultConstants" ), ex );
         }
 
         try {
@@ -259,12 +261,12 @@ public class RunScript extends BaseStep implements StepInterface {
           }
         } catch ( Exception es ) {
           throw new KettleValueException(
-            BaseMessages.getString( PKG, "RunScript.Log.ErrorProcessingStartScript" ), es );
+            BaseMessages.getString( PKG, "SuperScript.Log.ErrorProcessingStartScript" ), es );
 
         }
 
         data.rawScript = strTransformScript;
-        // Now Compile our RunScript if supported by the engine
+        // Now Compile our SuperScript if supported by the engine
         if ( data.engine instanceof Compilable ) {
           data.compiledScript = ( (Compilable) data.engine ).compile( strTransformScript );
 
@@ -272,7 +274,7 @@ public class RunScript extends BaseStep implements StepInterface {
           data.compiledScript = null;
         }
       } catch ( Exception e ) {
-        throw new KettleValueException( BaseMessages.getString( PKG, "RunScript.Log.CouldNotCompileScript" ), e );
+        throw new KettleValueException( BaseMessages.getString( PKG, "SuperScript.Log.CouldNotCompileScript" ), e );
       }
     }
 
@@ -283,7 +285,7 @@ public class RunScript extends BaseStep implements StepInterface {
     Object[] outputRow = RowDataUtil.resizeArray( row, data.outputRowMeta.size() );
 
     // Keep an index...
-    int outputIndex = rowMeta.size();
+    int outputIndex = rowMeta == null ? 0 : rowMeta.size();
 
     try {
       try {
@@ -293,7 +295,7 @@ public class RunScript extends BaseStep implements StepInterface {
         try {
           bindings.put( "lastRow", lastRow );
         } catch ( Throwable t ) {
-          logError( BaseMessages.getString( PKG, "RunScript.Exception.ErrorSettingVariable", "lastRow" ), t );
+          logError( BaseMessages.getString( PKG, "SuperScript.Exception.ErrorSettingVariable", "lastRow" ), t );
         }
 
         for ( int i = 0; i < data.fields_used.length; i++ ) {
@@ -309,7 +311,7 @@ public class RunScript extends BaseStep implements StepInterface {
         //
         bindings.put( "rowMeta", rowMeta );
       } catch ( Exception e ) {
-        throw new KettleValueException( BaseMessages.getString( PKG, "RunScript.Log.UnexpectedError" ), e );
+        throw new KettleValueException( BaseMessages.getString( PKG, "SuperScript.Log.UnexpectedError" ), e );
       }
 
       Object scriptResult = evalScript();
@@ -388,7 +390,7 @@ public class RunScript extends BaseStep implements StepInterface {
         //
       }
     } catch ( ScriptException e ) {
-      throw new KettleValueException( BaseMessages.getString( PKG, "RunScript.Log.RunScriptError" ), e );
+      throw new KettleValueException( BaseMessages.getString( PKG, "SuperScript.Log.SuperScriptError" ), e );
     }
     return bRC;
   }
@@ -597,7 +599,7 @@ public class RunScript extends BaseStep implements StepInterface {
           return null;
         }
       } catch ( Exception e ) {
-        throw new KettleValueException( BaseMessages.getString( PKG, "RunScript.Log.ScriptError" ), e );
+        throw new KettleValueException( BaseMessages.getString( PKG, "SuperScript.Log.ScriptError" ), e );
       }
     } else {
       throw new KettleValueException( "No name was specified for result value #" + ( i + 1 ) );
@@ -610,11 +612,11 @@ public class RunScript extends BaseStep implements StepInterface {
 
   public boolean processRow( StepMetaInterface smi, StepDataInterface sdi ) throws KettleException {
 
-    meta = (RunScriptMeta) smi;
-    data = (RunScriptData) sdi;
+    meta = (SuperScriptMeta) smi;
+    data = (SuperScriptData) sdi;
 
     Object[] r = getRow(); // Get row from input rowset & set row busy!
-    if ( r == null ) {
+    if ( r == null && !first ) {
       // Modification for Additional End Function
       try {
         if ( data.engine != null ) {
@@ -634,8 +636,8 @@ public class RunScript extends BaseStep implements StepInterface {
           }
         }
       } catch ( Exception e ) {
-        logError( BaseMessages.getString( PKG, "RunScript.Log.UnexpectedError" ) + " : " + e.toString() );
-        logError( BaseMessages.getString( PKG, "RunScript.Log.ErrorStackTrace" ) + Const.CR
+        logError( BaseMessages.getString( PKG, "SuperScript.Log.UnexpectedError" ) + " : " + e.toString() );
+        logError( BaseMessages.getString( PKG, "SuperScript.Log.ErrorStackTrace" ) + Const.CR
           + Const.getStackTracker( e ) );
         setErrors( 1 );
         stopAll();
@@ -663,22 +665,22 @@ public class RunScript extends BaseStep implements StepInterface {
         bRC = true; // continue by all means, even on the first row and
         // out of this ugly design
       } else {
-        logError( BaseMessages.getString( PKG, "RunScript.Exception.CouldNotExecuteScript", location ), e );
+        logError( BaseMessages.getString( PKG, "SuperScript.Exception.CouldNotExecuteScript", location ), e );
         setErrors( 1 );
         bRC = false;
       }
     }
 
     if ( checkFeedback( getLinesRead() ) ) {
-      logBasic( BaseMessages.getString( PKG, "RunScript.Log.LineNumber" ) + getLinesRead() );
+      logBasic( BaseMessages.getString( PKG, "SuperScript.Log.LineNumber" ) + getLinesRead() );
     }
     lastRow = r;
     return bRC;
   }
 
   public boolean init( StepMetaInterface smi, StepDataInterface sdi ) {
-    meta = (RunScriptMeta) smi;
-    data = (RunScriptData) sdi;
+    meta = (SuperScriptMeta) smi;
+    data = (SuperScriptData) sdi;
 
     if ( super.init( smi, sdi ) ) {
 
@@ -700,6 +702,7 @@ public class RunScript extends BaseStep implements StepInterface {
             break;
         }
       }
+      data.engine = ScriptUtils.createNewScriptEngineByLanguage( meta.getLanguageName() );
       rownr = 0;
       lastRow = null;
       return true;

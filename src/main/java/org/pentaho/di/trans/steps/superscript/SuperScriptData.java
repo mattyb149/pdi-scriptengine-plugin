@@ -18,7 +18,7 @@
  *
  ******************************************************************************/
 
-package org.pentaho.di.trans.steps.scriptengines;
+package org.pentaho.di.trans.steps.superscript;
 
 import javax.script.CompiledScript;
 import javax.script.ScriptContext;
@@ -32,7 +32,7 @@ import org.pentaho.di.trans.step.StepDataInterface;
 /**
  * @author Matt Burgess
  */
-public class RunScriptData extends BaseStepData implements StepDataInterface {
+public class SuperScriptData extends BaseStepData implements StepDataInterface {
   public ScriptEngine engine;
   public ScriptContext context;
   public CompiledScript compiledScript;
@@ -47,7 +47,7 @@ public class RunScriptData extends BaseStepData implements StepDataInterface {
   /**
    *
    */
-  public RunScriptData() {
+  public SuperScriptData() {
     super();
     engine = null;
     fields_used = null;

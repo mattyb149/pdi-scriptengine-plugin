@@ -1,4 +1,4 @@
-package org.pentaho.di.trans.steps.scriptengines;
+package org.pentaho.di.trans.steps.superscript;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -9,7 +9,7 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineFactory;
 import javax.script.ScriptEngineManager;
 
-public class RunScriptUtils {
+public class ScriptUtils {
 
   private static ScriptEngineManager scriptEngineManager;
 
@@ -61,7 +61,7 @@ public class RunScriptUtils {
     if ( scriptEngineManager == null ) {
       System.setProperty( "org.jruby.embed.localvariable.behavior", "persistent" );// required for JRuby, transparent
       // for others
-      scriptEngineManager = new ScriptEngineManager( RunScriptUtils.class.getClassLoader() );
+      scriptEngineManager = new ScriptEngineManager( ScriptUtils.class.getClassLoader() );
       populateEngineFactoryMap();
     }
     return scriptEngineManager;
